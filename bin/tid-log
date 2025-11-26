@@ -1,5 +1,5 @@
 #!/bin/bash
-# tmux hook에서 호출됨 - 세션 attach 시 ntfy로 전송
+# Called by tmux hook - sends notification on session attach/create
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 source "$SCRIPT_DIR/config.sh"
@@ -8,11 +8,11 @@ SESSION_NAME=$(tmux display-message -p '#S')
 TIME=$(date '+%H:%M')
 DATE=$(date '+%Y-%m-%d')
 
-# 로컬 로그 저장
+# Save to local log
 mkdir -p "$SCRIPT_DIR/logs"
 echo "$TIME - $SESSION_NAME" >> "$SCRIPT_DIR/logs/$DATE.log"
 
-# ntfy 전송 (토픽이 설정된 경우만)
+# Send to ntfy (only if topic is configured)
 if [[ "$NTFY_TOPIC" != "YOUR_TOPIC_HERE" && "$NTFY_TOPIC" != "your-random-topic-name-here" && -n "$NTFY_TOPIC" ]]; then
     curl -s -d "🔧 $TIME - $SESSION_NAME" "https://ntfy.sh/$NTFY_TOPIC" > /dev/null 2>&1 &
 fi

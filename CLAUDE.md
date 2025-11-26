@@ -1,29 +1,29 @@
-# Today I Did - tmux 세션 로깅
+# Today I Did - tmux Session Logging
 
-tmux 세션에 attach/create할 때 자동으로 ntfy.sh를 통해 알림을 보내는 도구.
+A tool that automatically sends ntfy.sh notifications when attaching/creating tmux sessions.
 
-## 구조
+## Structure
 
 ```
-~/git/today_I_did/
-├── bin/tid-log      # tmux hook에서 호출되는 스크립트
-├── logs/            # 일별 로컬 로그 (YYYY-MM-DD.log)
-├── config.sh        # ntfy 토픽 설정
+~/.today_i_did/
+├── bin/tid-log      # Script called by tmux hook
+├── logs/            # Daily local logs (YYYY-MM-DD.log)
+├── config.sh        # ntfy topic configuration
 └── CLAUDE.md
 ```
 
-## 동작 방식
+## How It Works
 
-1. tmux 세션 생성 또는 attach 시 `~/.tmux.conf`의 hook이 `bin/tid-log` 실행
-2. 세션 이름과 시간을 ntfy.sh로 전송
-3. 로컬 로그 파일에도 기록
+1. tmux hook in `~/.tmux.conf` runs `bin/tid-log` on session create/attach
+2. Session name and time are sent to ntfy.sh
+3. Also logged locally
 
-## 설정 파일
+## Config Files
 
 ### ~/.tmux.conf
 ```bash
-set-hook -g client-attached 'run-shell "/Users/kyw/git/today_I_did/bin/tid-log"'
-set-hook -g session-created 'run-shell "/Users/kyw/git/today_I_did/bin/tid-log"'
+set-hook -g client-attached 'run-shell "~/.today_i_did/bin/tid-log"'
+set-hook -g session-created 'run-shell "~/.today_i_did/bin/tid-log"'
 ```
 
 ### config.sh
@@ -31,13 +31,13 @@ set-hook -g session-created 'run-shell "/Users/kyw/git/today_I_did/bin/tid-log"'
 NTFY_TOPIC="tid-xxxxxxxxxxxxxxxx"
 ```
 
-## 알림 형식
+## Notification Format
 
 ```
 🔧 14:30 - session-name
 ```
 
-## 로그 형식
+## Log Format
 
 `logs/2025-11-26.log`:
 ```
@@ -45,18 +45,18 @@ NTFY_TOPIC="tid-xxxxxxxxxxxxxxxx"
 15:45 - another-session
 ```
 
-## 수동 테스트
+## Manual Testing
 
 ```bash
-# 스크립트 직접 실행
-~/git/today_I_did/bin/tid-log
+# Run script directly
+~/.today_i_did/bin/tid-log
 
-# ntfy 직접 전송
-curl -d "테스트" https://ntfy.sh/$(grep NTFY_TOPIC ~/git/today_I_did/config.sh | cut -d'"' -f2)
+# Send ntfy directly
+curl -d "test" https://ntfy.sh/$(grep NTFY_TOPIC ~/.today_i_did/config.sh | cut -d'"' -f2)
 ```
 
-## 의존성
+## Dependencies
 
 - tmux 3.x+
 - curl
-- ntfy 앱 (iOS/Android)
+- ntfy app (iOS/Android)

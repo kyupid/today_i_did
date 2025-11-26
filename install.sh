@@ -4,12 +4,12 @@ set -e
 INSTALL_DIR="$HOME/.today_i_did"
 REPO_URL="https://github.com/kyupid/today_i_did.git"
 
-echo "📋 Today I Did 설치 시작..."
+echo "📋 Installing Today I Did..."
 
-# 1. 설치 디렉토리 생성
+# 1. Create install directory
 if [ -d "$INSTALL_DIR" ]; then
-    echo "⚠️  이미 설치되어 있습니다: $INSTALL_DIR"
-    read -p "다시 설치하시겠습니까? (y/N) " -n 1 -r
+    echo "⚠️  Already installed at: $INSTALL_DIR"
+    read -p "Reinstall? (y/N) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         exit 1
@@ -17,69 +17,69 @@ if [ -d "$INSTALL_DIR" ]; then
     rm -rf "$INSTALL_DIR"
 fi
 
-# 2. 저장소 클론 또는 로컬 복사
+# 2. Clone repo or copy local
 if [ -d "$(dirname "$0")/bin" ]; then
-    echo "📁 로컬에서 설치 중..."
+    echo "📁 Installing from local..."
     cp -r "$(dirname "$0")" "$INSTALL_DIR"
 else
-    echo "📥 저장소에서 다운로드 중..."
+    echo "📥 Downloading from repository..."
     git clone "$REPO_URL" "$INSTALL_DIR"
 fi
 
-# 3. 디렉토리 생성
+# 3. Create directories
 mkdir -p "$INSTALL_DIR/logs"
 
-# 4. config.sh 설정
+# 4. Setup config.sh
 if [ ! -f "$INSTALL_DIR/config.sh" ]; then
     RANDOM_TOPIC="tid-$(openssl rand -hex 8)"
     cat > "$INSTALL_DIR/config.sh" << EOF
 #!/bin/bash
 NTFY_TOPIC="$RANDOM_TOPIC"
 EOF
-    echo "🔑 ntfy 토픽 생성됨: $RANDOM_TOPIC"
+    echo "🔑 Generated ntfy topic: $RANDOM_TOPIC"
 fi
 
-# 5. 실행 권한 부여
+# 5. Set permissions
 chmod +x "$INSTALL_DIR/bin/tid-log"
 
-# 6. tmux.conf 설정
+# 6. Setup tmux.conf
 TMUX_HOOK='set-hook -g client-attached '\''run-shell "~/.today_i_did/bin/tid-log"'\'''
 TMUX_HOOK2='set-hook -g session-created '\''run-shell "~/.today_i_did/bin/tid-log"'\'''
 
 if [ -f "$HOME/.tmux.conf" ]; then
     if grep -q "today_i_did" "$HOME/.tmux.conf"; then
-        echo "✅ tmux hook 이미 설정됨"
+        echo "✅ tmux hook already configured"
     else
         echo "" >> "$HOME/.tmux.conf"
-        echo "# Today I Did - 세션 로깅" >> "$HOME/.tmux.conf"
+        echo "# Today I Did - session logging" >> "$HOME/.tmux.conf"
         echo "$TMUX_HOOK" >> "$HOME/.tmux.conf"
         echo "$TMUX_HOOK2" >> "$HOME/.tmux.conf"
-        echo "✅ tmux hook 추가됨"
+        echo "✅ Added tmux hook"
     fi
 else
-    echo "# Today I Did - 세션 로깅" > "$HOME/.tmux.conf"
+    echo "# Today I Did - session logging" > "$HOME/.tmux.conf"
     echo "$TMUX_HOOK" >> "$HOME/.tmux.conf"
     echo "$TMUX_HOOK2" >> "$HOME/.tmux.conf"
-    echo "✅ tmux.conf 생성됨"
+    echo "✅ Created tmux.conf"
 fi
 
-# 7. tmux 설정 리로드
+# 7. Reload tmux config
 if tmux info &> /dev/null; then
     tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
-    echo "✅ tmux 설정 리로드됨"
+    echo "✅ Reloaded tmux config"
 fi
 
-# 완료 메시지
+# Done
 TOPIC=$(grep NTFY_TOPIC "$INSTALL_DIR/config.sh" | cut -d'"' -f2)
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "✅ 설치 완료!"
+echo "✅ Installation complete!"
 echo ""
-echo "📱 다음 단계:"
-echo "   1. ntfy 앱 설치 (iOS/Android)"
-echo "   2. 앱에서 토픽 구독: $TOPIC"
-echo "   3. tmux 세션 시작하면 자동 알림!"
+echo "📱 Next steps:"
+echo "   1. Install ntfy app (iOS/Android)"
+echo "   2. Subscribe to topic: $TOPIC"
+echo "   3. Start a tmux session and get notified!"
 echo ""
-echo "🧪 테스트:"
-echo "   curl -d '테스트' https://ntfy.sh/$TOPIC"
+echo "🧪 Test:"
+echo "   curl -d 'test' https://ntfy.sh/$TOPIC"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
