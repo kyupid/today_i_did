@@ -14,7 +14,7 @@ tmux 세션 시작/attach 시 자동으로 알림을 보내는 도구.
 ## 설치
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/today_i_did.git
+git clone https://github.com/kyupid/today_i_did.git
 cd today_i_did
 ./install.sh
 ```

@@ -2,7 +2,7 @@
 set -e
 
 INSTALL_DIR="$HOME/.today_i_did"
-REPO_URL="https://github.com/YOUR_USERNAME/today_i_did.git"
+REPO_URL="https://github.com/kyupid/today_i_did.git"
 
 echo "📋 Today I Did 설치 시작..."
 
